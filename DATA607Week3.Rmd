@@ -1,0 +1,131 @@
+---
+title: "DATA 606 Week 3"
+author: "Vinicio Haro"
+date: "2/17/2018"
+output: html_document
+---
+
+Copy the introductory example. The vector name stores the extracted names 
+```{r}
+library(stringr)
+raw.data <- paste("555-1239Moe Szyslak(636) 555-0113Burns, C. ",
+                  "Montgomery555 -6542Rev. Timothy Lovejoy555 8904Ned ",
+                  "Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert")
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name
+```
+
+1) Use the tools of this chapter to rearrange the vector so that all the elements conform to the standard first_name last_name format. 
+Some names have abbreviations such as C for Charles. I want to remove them. I also notice that there is a comma for the names that do need to be switched. I want to use this to my advantage in order to flip names over the comma. I also want to remove titles from names. 
+```{r}
+#Some names contain Abbs such as C for Charles. 
+#Lets remove them 
+name2 <- sub(" [A-z]{1}\\. ","",name)
+name2
+```
+
+```{r}
+#Lets now remove titles from the names
+name3 <- sub("[A-z]{2,3}\\. ","",name2)
+name3
+```
+
+```{r}
+#We can use the fact that the names that need to be switched have a comma,
+#we can flip names over the entries with the comma
+name4 <- sub("(\\w+),\\s(\\w+)","\\2 \\1", name3)
+name4
+
+```
+
+```{r}
+#Now as a data frame 
+df.names <- data.frame(name4)
+df.names
+```
+
+2) Construct a logical vector indicating whether a character has a title 
+```{r}
+#Recall the original sample 'name2' from part a
+title_vector <- str_detect(name2, "[[:alpha:]]{2,}\\.")
+title_vector
+```
+```{r}
+#It can be seen easier as a data frame
+df.titlevector <- data.frame(name2,title_vector)
+df.titlevector
+```
+
+We have correctly identifed who has a title or not using TRUE/FALSE statements 
+
+3) Contruct a logical vector that indicates if a character has a second name
+```{r}
+secondname <- str_detect(name," [A-z]{1}\\. ")
+df.secondname <- data.frame(name,secondname)
+df.secondname
+```
+We have correctly identifed who has a second name 
+
+3) Describe the Types of Strings that conform to the following regular expressions and contruct an example that is matched by the regular expression 
+```{r}
+# [0-9]+\\$
+#\\b[a-z]{1,4}\\b
+# .*?\\.txt$
+#\\d{2}/\\d{2}/\\d{4}
+#<(.+?)>.+?</\\1>
+```
+
+```{r}
+#A digit or more followed by the dollar $ 
+pattern1<-"[0-9]+\\$"
+sample1=c("1837648", "hy45$", "55$")
+str_detect(sample1, pattern1)
+```
+```{r}
+#Any word that has anywhere between 1 to 4 letters end with word boundary
+pattern2<-"\\b[a-z]{1,4}\\b"
+sample2<-c("cat","dogs","birds", "the", "abc is 123 is cool")
+str_detect(sample2,pattern2)
+```
+
+```{r}
+#A string that ends with a .txt and then new line or end line 
+pattern3<-".*?\\.txt$"
+sample3<-c("hello.txt", "txt", "pets.txt","hd73tdh.txt")
+str_detect(sample3,pattern3)
+```
+
+```{r}
+#Numbers that are written in format nn/nn/nnn
+pattern4='\\d{2}/\\d{2}/\\d{4}'
+sample4<-c("109/8473/9848", "33/33/3333", "5/4/3")
+str_detect(sample4, pattern4)
+```
+
+```{r}
+#Select one or more character inside brakcets <>
+#Followed by one or more character 
+#Followed by the same character inside the previous <> with a / in front (html format)
+pattern5<-"<(.+?)>.+?</\\1>"
+sample5<-c("<bob>hello</bob>", "<bob>hello<bob>")
+str_detect(sample5,pattern5)
+```
+
+9) Extra Credit-The following code hides a secret message. Crack it with R and regular expressions. 
+```{r}
+secret_code <-"clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+
+```
+
+```{r}
+#lets extract upper case letters
+secret_code2 <- unlist(str_extract_all(secret_code, "[[:upper:].]{1,}"))
+secret_code2
+```
+
+```{r}
+#I can see the message but it can be massaged to look like standard text that anyone could read
+secret_code3 <- str_replace_all(paste(secret_code2, collapse = ''), "[.]", " ")
+secret_code3
+```
+
